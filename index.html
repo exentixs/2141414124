@@ -2,164 +2,707 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NexusVPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0f1115; --card: #1a1d24; --primary: #4f46e5; --text: #e5e7eb; --muted: #9ca3af; --success: #10b981; --danger: #ef4444; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; }
-        .container { max-width: 400px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 24px; }
-        .header h1 { font-size: 24px; margin-bottom: 4px; background: linear-gradient(90deg, #4f46e5, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .header p { color: var(--muted); font-size: 14px; }
-        .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-        .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
-        .badge { font-size: 12px; background: rgba(79, 70, 229, 0.2); color: #8b5cf6; padding: 4px 8px; border-radius: 6px; }
-        .key-box { background: #111827; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 13px; word-break: break-all; margin: 10px 0; color: #a5b4fc; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 8px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #4338ca; }
-        .btn-outline { background: transparent; border: 1px solid #374151; color: var(--text); }
-        .input { width: 100%; padding: 12px; background: #111827; border: 1px solid #374151; border-radius: 10px; color: white; margin-bottom: 12px; outline: none; }
-        .input:focus { border-color: var(--primary); }
-        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
-        .feat { background: #1f2937; padding: 10px; border-radius: 10px; text-align: center; }
-        .feat span { display: block; font-size: 18px; margin-bottom: 4px; }
-        .hidden { display: none; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #374151; padding: 10px 16px; border-radius: 8px; opacity: 0; transition: 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --tg-theme-bg-color: #0f1115;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-button-color: #4f46e5;
+            --tg-theme-button-text-color: #ffffff;
+            --card-bg: #1a1d24;
+            --input-bg: #111827;
+            --border-color: #374151;
+            --success: #10b981;
+            --danger: #ef4444;
+            --muted: #9ca3af;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--tg-theme-text-color);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--tg-theme-button-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--tg-theme-text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--input-bg);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--tg-theme-button-color);
+            border-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .subscription-badge {
+            background: rgba(79, 70, 229, 0.2);
+            color: #8b5cf6;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .key-box {
+            background: var(--input-bg);
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            margin: 16px 0;
+            color: #a5b4fc;
+            border: 1px solid var(--border-color);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: var(--input-bg);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .feature-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .feature-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .devices-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card-bg);
+            color: var(--tg-theme-text-color);
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            border: 1px solid var(--border-color);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .modal-text {
+            color: var(--muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .invite-code {
+            background: var(--input-bg);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 16px 0;
+            border: 1px solid var(--border-color);
+            letter-spacing: 2px;
+        }
+
+        .warning-text {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .info-text {
+            color: var(--muted);
+            font-size: 13px;
+            text-align: center;
+            margin: 12px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <h1>NexusVPN</h1>
-            <p>Безопасность без границ • Протокол VLESS</p>
+            <p>Безопасность без границ</p>
         </div>
 
-        <!-- Экран регистрации (показывается при первом запуске) -->
-        <div id="auth-screen" class="card">
-            <h3 style="margin-bottom: 8px;">🎟️ Первый запуск</h3>
-            <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px;">Для регистрации введите инвайт-код от администратора или друга.</p>
-            <input type="text" id="invite-input" class="input" placeholder="INV-XXXXXXXX">
-            <button onclick="submitRegister()" class="btn btn-primary">🔐 Войти через Telegram</button>
-        </div>
-
-        <!-- Дашборд (показывается после регистрации) -->
-        <div id="dashboard-screen" class="hidden">
-            <div class="card">
-                <div class="status"><div class="dot"></div> Подключение активно</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span id="user-greet" style="font-weight: 500;">Привет! 👋</span>
-                    <span class="badge">Starter</span>
-                </div>
-                <p style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Протокол: <code>VLESS</code> • Шифрование: <code>TLS</code></p>
-                
-                <div class="key-box" id="vless-key">Загрузка ключа...</div>
-                <button onclick="copyKey()" class="btn btn-outline">📋 Скопировать ключ</button>
+        <!-- Auth Screen -->
+        <div id="authScreen" class="card">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')">Войти</div>
+                <div class="tab" onclick="switchTab('register')">Регистрация</div>
             </div>
 
-            <div class="card">
-                <h4 style="margin-bottom: 12px;">📦 Ваша подписка</h4>
-                <div class="features">
-                    <div class="feat"><span>📱 4</span> Устройств</div>
-                    <div class="feat"><span>⚡ 100</span> Мбит/с</div>
-                    <div class="feat"><span>🔓</span> Обход БЛ</div>
-                    <div class="feat"><span>🛡️</span> VLESS</div>
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Логин 👤</label>
+                    <input type="text" class="form-input" id="loginUsername" placeholder="Введите логин">
                 </div>
-                <button onclick="requestInvite()" class="btn btn-primary">📨 Пригласить друга</button>
+                <div class="form-group">
+                    <label>Пароль 🔒</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Введите пароль">
+                </div>
+                <button class="btn btn-primary" onclick="login()">Войти</button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="hidden">
+                <div class="form-group">
+                    <label>Логин 👤</label>
+                    <input type="text" class="form-input" id="regUsername" placeholder="Придумайте логин">
+                </div>
+                <div class="form-group">
+                    <label>Пароль 🔒</label>
+                    <input type="password" class="form-input" id="regPassword" placeholder="Придумайте пароль">
+                </div>
+                <div class="form-group">
+                    <label>Инвайт-код 🎟️</label>
+                    <input type="text" class="form-input" id="regInvite" placeholder="Введите инвайт-код">
+                </div>
+                <div class="warning-text">
+                    ⚠️ В тестовой версии инвайт-код не обязателен
+                </div>
+                <button class="btn btn-primary" onclick="register()">Создать аккаунт</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboardScreen" class="hidden">
+            <!-- Status Card -->
+            <div class="card">
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span>Подключение активно</span>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-name" id="userName">Привет! 👋</div>
+                    <div class="subscription-badge">Starter</div>
+                </div>
+
+                <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">
+                    Протокол VLESS • Шифрование включено
+                </p>
+
+                <div style="margin: 16px 0;">
+                    <div style="font-size: 14px; color: var(--muted); margin-bottom: 8px;">
+                        🔑 Ключ доступа
+                    </div>
+                    <div class="key-box" id="vlessKey">Загрузка...</div>
+                    <button class="btn btn-outline" onclick="copyKey()">
+                        📋 Скопировать ключ
+                    </button>
+                </div>
+
+                <p style="font-size: 13px; color: var(--muted); text-align: center;">
+                    🛡️ Используйте этот ключ для подключения в вашем VPN-клиенте
+                </p>
+            </div>
+
+            <!-- Subscription Card -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px;">📦 Ваша подписка <span style="color: #8b5cf6;">Starter</span></h3>
+                
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="feature-icon">📱</div>
+                        <div class="feature-label">Устройств</div>
+                        <div class="feature-value">4</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-label">Скорость</div>
+                        <div class="feature-value">100 Мбит/с</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔓</div>
+                        <div class="feature-label">Обход блокировок</div>
+                        <div class="feature-value">✓</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <div class="feature-label">Протокол</div>
+                        <div class="feature-value">VLESS</div>
+                    </div>
+                </div>
+
+                <div class="devices-info">
+                    <span style="color: var(--muted);">💻 Подключённые устройства</span>
+                    <span style="font-weight: 600;">0 / 4</span>
+                </div>
+
+                <button class="btn btn-primary" onclick="showInviteModal()">
+                    📨 Пригласить пользователя
+                </button>
+                <button class="btn btn-outline" onclick="showSubInfo()">
+                    📦 Подробнее о подписке
+                </button>
+                <button class="btn btn-outline" onclick="logout()" style="border-color: var(--danger); color: var(--danger);">
+                    Выйти
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-title">📨 Создание приглашения</div>
+            <div class="modal-text">
+                Сгенерируйте уникальный инвайт-код, который можно передать другу для регистрации в NexusVPN.
+            </div>
+            <div class="invite-code" id="generatedInvite">INV-XXXXXXXX</div>
+            <button class="btn btn-primary" onclick="generateInvite()">🔄 Сгенерировать новый код</button>
+            <button class="btn btn-outline" onclick="closeInviteModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Subscription Info Modal -->
+    <div id="subModal" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-title">📦 Подписка Starter</div>
+            <div class="modal-text">
+                Доступный план для комфортного использования VPN с протоколом VLESS
+            </div>
+            <div style="margin: 16px 0;">
+                <div style="margin-bottom: 12px; padding: 12px; background: var(--input-bg); border-radius: 8px;">
+                    ✓ Подключение до <strong style="color: #8b5cf6;">4 устройств</strong> одновременно
+                </div>
+                <div style="margin-bottom: 12px; padding: 12px; background: var(--input-bg); border-radius: 8px;">
+                    ✓ Скорость до <strong style="color: #8b5cf6;">100 Мбит/с</strong>
+                </div>
+                <div style="margin-bottom: 12px; padding: 12px; background: var(--input-bg); border-radius: 8px;">
+                    ✓ Обход <strong style="color: #8b5cf6;">белых списков</strong> и ограничений
+                </div>
+                <div style="margin-bottom: 12px; padding: 12px; background: var(--input-bg); border-radius: 8px;">
+                    ✓ Современный протокол <strong style="color: #8b5cf6;">VLESS</strong>
+                </div>
+                <div style="padding: 12px; background: var(--input-bg); border-radius: 8px;">
+                    ✓ Шифрование трафика и защита данных
+                </div>
+            </div>
+            <button class="btn btn-primary">🚀 Активировать подписку</button>
+            <button class="btn btn-outline" onclick="closeSubModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
     <script>
+        // Initialize Telegram WebApp
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        const authScreen = document.getElementById('auth-screen');
-        const dashScreen = document.getElementById('dashboard-screen');
-        const keyBox = document.getElementById('vless-key');
-        const inviteInput = document.getElementById('invite-input');
-        const toast = document.getElementById('toast');
+        // State
+        let currentUser = null;
+        let currentTab = 'login';
 
-        // Проверка авторизации через localStorage
-        function checkAuth() {
-            const user = tg.initDataUnsafe?.user;
-            if (!user) {
-                tg.close();
+        // Load saved session
+        window.onload = function() {
+            const savedUser = localStorage.getItem('nexusvpn_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showDashboard();
+            }
+        };
+
+        // Tab switching
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
+        }
+
+        // Login
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showToast('❌ Введите логин и пароль');
                 return;
             }
-            const isRegistered = localStorage.getItem('nexusvpn_reg_' + user.id);
-            if (isRegistered === 'true') {
-                showDashboard();
-            } else {
-                authScreen.style.display = 'block';
+
+            const users = JSON.parse(localStorage.getItem('nexusvpn_users') || '{}');
+            const user = users[username];
+
+            if (!user || user.password !== password) {
+                showToast('❌ Неверный логин или пароль');
+                return;
             }
+
+            currentUser = user;
+            localStorage.setItem('nexusvpn_user', JSON.stringify(user));
+            showDashboard();
+            showToast('✅ Добро пожаловать!');
         }
 
+        // Register
+        function register() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const inviteCode = document.getElementById('regInvite').value.trim();
+
+            if (!username || !password) {
+                showToast('❌ Введите логин и пароль');
+                return;
+            }
+
+            // В тестовой версии инвайт не обязателен
+            if (inviteCode && inviteCode.length < 4) {
+                showToast('❌ Неверный инвайт-код');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('nexusvpn_users') || '{}');
+            
+            if (users[username]) {
+                showToast('❌ Пользователь уже существует');
+                return;
+            }
+
+            // Generate VLESS key
+            const vlessKey = generateVLESSKey(username);
+
+            // Save user
+            users[username] = {
+                username: username,
+                password: password,
+                vlessKey: vlessKey,
+                subscription: 'Starter',
+                devicesLimit: 4,
+                registeredAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('nexusvpn_users', JSON.stringify(users));
+            
+            currentUser = users[username];
+            localStorage.setItem('nexusvpn_user', JSON.stringify(currentUser));
+            
+            showDashboard();
+            showToast('✅ Аккаунт создан!');
+        }
+
+        // Generate VLESS key
+        function generateVLESSKey(username) {
+            const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+            return `vless://${uuid}@vpn.nexusvpn.io:443?encryption=none&security=tls&sni=vpn.nexusvpn.io&type=tcp#NexusVPN_${username}`;
+        }
+
+        // Show Dashboard
         function showDashboard() {
-            authScreen.style.display = 'none';
-            dashScreen.classList.remove('hidden');
-            document.getElementById('user-greet').textContent = `Привет, ${tg.initDataUnsafe.user.first_name}! 👋`;
-            
-            // Запрашиваем ключ у бота
-            tg.sendData(JSON.stringify({
-                action: 'request_key',
-                tg_id: tg.initDataUnsafe.user.id
-            }));
-            keyBox.textContent = '🔑 Ключ получен в чате с ботом...';
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('userName').textContent = `Привет, ${currentUser.username}! 👋`;
+            document.getElementById('vlessKey').textContent = currentUser.vlessKey;
         }
 
-        function submitRegister() {
-            const code = inviteInput.value.trim();
-            const user = tg.initDataUnsafe.user;
-            if (!code) return showToast('❌ Введите инвайт-код');
-
-            tg.sendData(JSON.stringify({
-                action: 'register',
-                tg_id: user.id,
-                tg_username: user.username || user.first_name,
-                invite_code: code
-            }));
-            
-            localStorage.setItem('nexusvpn_reg_' + user.id, 'true');
-            showToast('✅ Регистрация успешна! Проверьте чат.');
-            setTimeout(() => showDashboard(), 800);
-        }
-
+        // Copy Key
         function copyKey() {
-            navigator.clipboard.writeText(keyBox.textContent.replace('🔑 ', '')).then(() => showToast('📋 Скопировано!'));
+            navigator.clipboard.writeText(currentUser.vlessKey).then(() => {
+                showToast('📋 Ключ скопирован!');
+            }).catch(() => {
+                showToast('❌ Не удалось скопировать');
+            });
         }
 
-        function requestInvite() {
-            // Генерируем код через бота
-            tg.sendData(JSON.stringify({
-                action: 'request_invite',
-                tg_id: tg.initDataUnsafe.user.id
-            }));
-            showToast('📩 Инвайт-код отправлен в чат');
+        // Generate Invite
+        function generateInvite() {
+            const code = 'INV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            document.getElementById('generatedInvite').textContent = code;
+            showToast('✅ Инвайт-код сгенерирован');
         }
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
+        // Show/Close Modals
+        function showInviteModal() {
+            generateInvite();
+            document.getElementById('inviteModal').classList.remove('hidden');
         }
 
-        // Слушаем ответ от бота в WebApp (через события mainButton или сообщения)
-        // Для простоты используем localStorage + ручное обновление UI
-        window.addEventListener('message', (event) => {
-            if (event.data?.type === 'KEY_RECEIVED') {
-                keyBox.textContent = event.data.key;
+        function closeInviteModal() {
+            document.getElementById('inviteModal').classList.add('hidden');
+        }
+
+        function showSubInfo() {
+            document.getElementById('subModal').classList.remove('hidden');
+        }
+
+        function closeSubModal() {
+            document.getElementById('subModal').classList.add('hidden');
+        }
+
+        function closeModal(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.add('hidden');
             }
-        });
+        }
 
-        checkAuth();
+        // Logout
+        function logout() {
+            localStorage.removeItem('nexusvpn_user');
+            currentUser = null;
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            showToast('👋 До свидания!');
+        }
+
+        // Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Set Telegram theme colors
+        if (tg.themeParams) {
+            document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#0f1115');
+            document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
+            document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#4f46e5');
+            document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#ffffff');
+        }
     </script>
 </body>
 </html>
