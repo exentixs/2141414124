@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NexusVPN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #0f1115; --card: #1a1d24; --primary: #4f46e5; --text: #e5e7eb; --muted: #9ca3af; --success: #10b981; --danger: #ef4444; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; }
+        .container { max-width: 400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; background: linear-gradient(90deg, #4f46e5, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .header p { color: var(--muted); font-size: 14px; }
+        .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
+        .badge { font-size: 12px; background: rgba(79, 70, 229, 0.2); color: #8b5cf6; padding: 4px 8px; border-radius: 6px; }
+        .key-box { background: #111827; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 13px; word-break: break-all; margin: 10px 0; color: #a5b4fc; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-outline { background: transparent; border: 1px solid #374151; color: var(--text); }
+        .input { width: 100%; padding: 12px; background: #111827; border: 1px solid #374151; border-radius: 10px; color: white; margin-bottom: 12px; outline: none; }
+        .input:focus { border-color: var(--primary); }
+        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+        .feat { background: #1f2937; padding: 10px; border-radius: 10px; text-align: center; }
+        .feat span { display: block; font-size: 18px; margin-bottom: 4px; }
+        .hidden { display: none; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #374151; padding: 10px 16px; border-radius: 8px; opacity: 0; transition: 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NexusVPN</h1>
+            <p>Безопасность без границ • Протокол VLESS</p>
+        </div>
+
+        <!-- Экран регистрации (показывается при первом запуске) -->
+        <div id="auth-screen" class="card">
+            <h3 style="margin-bottom: 8px;">🎟️ Первый запуск</h3>
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px;">Для регистрации введите инвайт-код от администратора или друга.</p>
+            <input type="text" id="invite-input" class="input" placeholder="INV-XXXXXXXX">
+            <button onclick="submitRegister()" class="btn btn-primary">🔐 Войти через Telegram</button>
+        </div>
+
+        <!-- Дашборд (показывается после регистрации) -->
+        <div id="dashboard-screen" class="hidden">
+            <div class="card">
+                <div class="status"><div class="dot"></div> Подключение активно</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span id="user-greet" style="font-weight: 500;">Привет! 👋</span>
+                    <span class="badge">Starter</span>
+                </div>
+                <p style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Протокол: <code>VLESS</code> • Шифрование: <code>TLS</code></p>
+                
+                <div class="key-box" id="vless-key">Загрузка ключа...</div>
+                <button onclick="copyKey()" class="btn btn-outline">📋 Скопировать ключ</button>
+            </div>
+
+            <div class="card">
+                <h4 style="margin-bottom: 12px;">📦 Ваша подписка</h4>
+                <div class="features">
+                    <div class="feat"><span>📱 4</span> Устройств</div>
+                    <div class="feat"><span>⚡ 100</span> Мбит/с</div>
+                    <div class="feat"><span>🔓</span> Обход БЛ</div>
+                    <div class="feat"><span>🛡️</span> VLESS</div>
+                </div>
+                <button onclick="requestInvite()" class="btn btn-primary">📨 Пригласить друга</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        const authScreen = document.getElementById('auth-screen');
+        const dashScreen = document.getElementById('dashboard-screen');
+        const keyBox = document.getElementById('vless-key');
+        const inviteInput = document.getElementById('invite-input');
+        const toast = document.getElementById('toast');
+
+        // Проверка авторизации через localStorage
+        function checkAuth() {
+            const user = tg.initDataUnsafe?.user;
+            if (!user) {
+                tg.close();
+                return;
+            }
+            const isRegistered = localStorage.getItem('nexusvpn_reg_' + user.id);
+            if (isRegistered === 'true') {
+                showDashboard();
+            } else {
+                authScreen.style.display = 'block';
+            }
+        }
+
+        function showDashboard() {
+            authScreen.style.display = 'none';
+            dashScreen.classList.remove('hidden');
+            document.getElementById('user-greet').textContent = `Привет, ${tg.initDataUnsafe.user.first_name}! 👋`;
+            
+            // Запрашиваем ключ у бота
+            tg.sendData(JSON.stringify({
+                action: 'request_key',
+                tg_id: tg.initDataUnsafe.user.id
+            }));
+            keyBox.textContent = '🔑 Ключ получен в чате с ботом...';
+        }
+
+        function submitRegister() {
+            const code = inviteInput.value.trim();
+            const user = tg.initDataUnsafe.user;
+            if (!code) return showToast('❌ Введите инвайт-код');
+
+            tg.sendData(JSON.stringify({
+                action: 'register',
+                tg_id: user.id,
+                tg_username: user.username || user.first_name,
+                invite_code: code
+            }));
+            
+            localStorage.setItem('nexusvpn_reg_' + user.id, 'true');
+            showToast('✅ Регистрация успешна! Проверьте чат.');
+            setTimeout(() => showDashboard(), 800);
+        }
+
+        function copyKey() {
+            navigator.clipboard.writeText(keyBox.textContent.replace('🔑 ', '')).then(() => showToast('📋 Скопировано!'));
+        }
+
+        function requestInvite() {
+            // Генерируем код через бота
+            tg.sendData(JSON.stringify({
+                action: 'request_invite',
+                tg_id: tg.initDataUnsafe.user.id
+            }));
+            showToast('📩 Инвайт-код отправлен в чат');
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Слушаем ответ от бота в WebApp (через события mainButton или сообщения)
+        // Для простоты используем localStorage + ручное обновление UI
+        window.addEventListener('message', (event) => {
+            if (event.data?.type === 'KEY_RECEIVED') {
+                keyBox.textContent = event.data.key;
+            }
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>
